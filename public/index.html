@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Science Olympiad Attendance</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="message" id="logged_out" style="display: none;">
+      <h2>Welcome</h2>
+      <h1>Robinson Science Olympiad Attendance Signin</h1>
+      <p>We are testing a new attendance system. Please sign in below to confim that you were at this meeting</p>
+      <button id="login">Login with FCPS Google Account</button>
+    </div>
+
+    <div class="message" id="logged_in" style="display: none;">
+        <h2>Welcome</h2>
+        <h1>You have signed in for today.</h1>
+        <p>We are testing a new attendance system. If there was an issue please see the officers.</p>
+        <button id="logout">Logout</button>
+    </div>
+
+    <div class="message" id="fail" style="display: none;">
+        <h2>Sorry</h2>
+        <h1>There is no meeting at this time.</h1>
+        <p>We are testing a new attendance system. If there was an issue please see the officers.</p>
+    </div>
+
+    <div class="message" id="error" style="display: none;">
+        <h2>Error</h2>
+        <h1>Something went wrong...</h1>
+        <p>Did you use your FCPS account? If so - and this error still appears - please see an officer.</p>
+    </div>
+
+   </body>
+</html>
+
+<!-- update the version number as needed -->
+<script src="/__/firebase/7.5.2/firebase-app.js"></script>
+<!-- include only the Firebase features as you need -->
+<script src="/__/firebase/7.5.2/firebase-auth.js"></script>
+<script src="/__/firebase/7.5.2/firebase-firestore.js"></script>
+<!-- initialize the SDK after all desired features are loaded -->
+<script src="/__/firebase/init.js"></script>
+
+<script>
+
+  try {
+    let app = firebase.app()
+    let features = ['auth', 'firestore'].filter(feature => typeof app[feature] === 'function')
+  } catch (e) {
+    console.error(e)
+  }
+
+  var provider = new firebase.auth.GoogleAuthProvider()
+  var db = firebase.firestore()
+
+  var login = document.getElementById('login')
+  var logout = document.getElementById('logout')
+  var logged_in = document.getElementById('logged_in')
+  var logged_out = document.getElementById('logged_out')
+  var fail = document.getElementById('fail')
+  var errorCard = document.getElementById('error')
+
+  login.addEventListener('click', () => {
+    firebase.auth().signInWithRedirect(provider).then(function(result) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      var token = result.credential.accessToken
+      // The signed-in user info.
+      var user = result.user
+      // ...
+    }).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code
+      var errorMessage = error.message
+      console.log(errorMessage)
+      logged_out.style.display = 'none'
+      logged_in.style.display = 'none'  
+      fail.style.display = 'none'  
+      errorCard.style.display = 'block'  
+      
+    })
+  })
+
+  logout.addEventListener('click', () => {
+    firebase.auth().signOut().then(function() {
+      logged_out.style.display = 'block'
+      logged_in.style.display = 'none'  
+    }).catch(function(error) {
+      logged_out.style.display = 'none'
+      logged_in.style.display = 'none'  
+      fail.style.display = 'none'  
+      errorCard.style.display = 'block'  
+    })
+  })
+
+  let params = new URLSearchParams(location.search)
+  var meeting = params.get('m')
+  var open = params.get('o')
+  var close = params.get('c')
+  var late = params.get('l')
+  var quarter = params.get('q')
+
+  var status = 'Present'
+
+  var today = new Date()
+  var minutes = today.getMinutes()
+  var hours = today.getHours()  
+
+  if (open == null || close == null || late == null || quarter == null || open == '' || close == '' || late == '' || quarter == '') {
+    fail.style.display = 'block'
+  } else {
+
+    if (hours >= open && hours <= close) {
+      
+      if (hours == (close-1) && minutes > late) {
+        status = 'Late'
+      }
+
+      if (meeting == '' || meeting == null) {
+        var dd = today.getDate()
+        var mm = today.getMonth()+1 
+        var yyyy = today.getFullYear()
+
+        if(dd<10) {
+          dd='0'+dd
+        } 
+        if(mm<10) {
+          mm='0'+mm
+        }
+        meeting = mm+'-'+dd+'-'+yyyy
+      }
+
+      firebase.auth().onAuthStateChanged(user => {
+        if(user) {
+
+          db.collection(quarter).doc(user.displayName).collection('Attendance').doc(meeting).set({status: status})
+          .then(function() {
+            logged_out.style.display = 'none'
+            logged_in.style.display = 'block'
+          })
+          .catch(function(error) {
+              console.error("Error writing document: ", error)
+              logged_out.style.display = 'none'
+              logged_in.style.display = 'none'  
+              fail.style.display = 'none'  
+              errorCard.style.display = 'block'  
+          })
+
+        } else {
+          logged_out.style.display = 'block'
+          logged_in.style.display = 'none'  
+        }
+      })
+
+    } else {
+      fail.style.display = 'block'
+    }
+  }
+
+</script>
