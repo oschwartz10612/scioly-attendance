@@ -15,7 +15,7 @@
     </div>
 
     <div class="container" id="logged_out" style="display: none;">
-        <button class="btn btn-primary" id="login">Login with FCPS Google Account</button>
+        <button class="btn btn-primary" id="login">Login with a Google Account</button>
     </div>
 
     <div class="container" id="fail" style="display: none;">
@@ -98,36 +98,27 @@
     })
   })
 
-  let params = new URLSearchParams(location.search)
-  var meeting = params.get('m')
-  var open = params.get('o')
-  var close = params.get('c')
-  var late = params.get('l')
-  var quarter = params.get('q')
+      var people = [];
 
-  var status = 'Present'
+      db.collection('Q1').get().then((doc) => {
+        doc.forEach(doc => {
+          people.push(doc.data().name)
+        });
 
-  var today = new Date()
-  var minutes = today.getMinutes()
-  var hours = today.getHours()  
-
-  // db.collection(quarter).doc(user.displayName).collection('Attendance').doc(meeting).set({status: status})
-  //         .then(function() {
-
-  //         })
-  //         .catch(function(error) {
-  //             console.error("Error writing document: ", error)
-  //             logged_out.style.display = 'none'
-  //             logged_in.style.display = 'none'  
-  //             fail.style.display = 'none'  
-  //             errorCard.style.display = 'block'  
-  //         })
+        people.forEach(person => {
+          console.log(person);
+          db.collection('Q1').doc(person).collection('meetings').
+        })
+      })
 
       firebase.auth().onAuthStateChanged(user => {
         if(user) {
-          logged_out.style.display = 'none'
-          logged_in.style.display = 'block'
-
+          if (user.email == 'roboscienceolympiad@gmail.com') {
+            logged_out.style.display = 'none'
+            logged_in.style.display = 'block'
+          } else {
+            fail.style.display = 'block';
+          }
         } else {
           logged_out.style.display = 'block'
           logged_in.style.display = 'none'  

@@ -136,18 +136,30 @@
       firebase.auth().onAuthStateChanged(user => {
         if(user) {
 
-          db.collection(quarter).doc(user.displayName).collection('Attendance').doc(meeting).set({status: status})
-          .then(function() {
-            logged_out.style.display = 'none'
-            logged_in.style.display = 'block'
-          })
-          .catch(function(error) {
-              console.error("Error writing document: ", error)
-              logged_out.style.display = 'none'
-              logged_in.style.display = 'none'  
-              fail.style.display = 'none'  
-              errorCard.style.display = 'block'  
-          })
+        logged_out.style.display = 'none'
+        logged_in.style.display = 'block'
+
+        db.collection(quarter).doc(user.displayName).set({
+              name: user.displayName
+        }).catch((error) => {
+            console.error("Error writing document: ", error)
+            displayError()
+        })
+
+        db.collection(quarter).doc(user.displayName).collection('meetings').doc(meeting).set({  
+          meeting: meeting,
+          status: status
+        }).catch((error) => {
+            console.error("Error writing document: ", error)
+            displayError()
+        })
+
+        db.collection(quarter).doc('all-meetings').collection('meetings').doc(meeting).set({  
+          meeting: meeting
+        }).catch((error) => {
+            console.error("Error writing document: ", error)
+            displayError()
+        })
 
         } else {
           logged_out.style.display = 'block'
@@ -158,6 +170,13 @@
     } else {
       fail.style.display = 'block'
     }
+  }
+
+  function displayError() {
+    logged_out.style.display = 'none'
+    logged_in.style.display = 'none'  
+    fail.style.display = 'none'  
+    errorCard.style.display = 'block' 
   }
 
 </script>
