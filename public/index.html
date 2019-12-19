@@ -32,7 +32,7 @@
         <h2>Error</h2>
         <h1>Something went wrong...</h1>
         <p>Did you use your FCPS account? If so - and this error still appears - please see an officer.</p>
-        <button id="logout">Logout</button>
+        <button id="logout2">Logout</button>
     </div>
 
    </body>
@@ -60,6 +60,7 @@
 
   var login = document.getElementById('login')
   var logout = document.getElementById('logout')
+  var logout2 = document.getElementById('logout2')
   var logged_in = document.getElementById('logged_in')
   var logged_out = document.getElementById('logged_out')
   var fail = document.getElementById('fail')
@@ -89,6 +90,20 @@
     firebase.auth().signOut().then(function() {
       logged_out.style.display = 'block'
       logged_in.style.display = 'none'  
+    }).catch(function(error) {
+      logged_out.style.display = 'none'
+      logged_in.style.display = 'none'  
+      fail.style.display = 'none'  
+      errorCard.style.display = 'block'  
+    })
+  })
+
+  logout2.addEventListener('click', () => {
+    firebase.auth().signOut().then(function() {
+      logged_out.style.display = 'block'
+      logged_in.style.display = 'none' 
+      fail.style.display = 'none'  
+      errorCard.style.display = 'none' 
     }).catch(function(error) {
       logged_out.style.display = 'none'
       logged_in.style.display = 'none'  
