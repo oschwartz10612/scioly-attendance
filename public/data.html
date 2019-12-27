@@ -4,18 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Science Olympiad Attendance Data</title>
-    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="shortcut icon" href="./res/img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="./res/css/bootstrap-material-design.min.css">
   </head>
   <body>
 
     <div class="container" id="logged_in" style="display: none;">
-        <button class="btn btn-primary" id="logout">Logout</button>
+        <button class="btn btn-outline-primary" id="logout">Logout</button>
 
     </div>
 
     <div class="container" id="logged_out" style="display: none;">
-        <button class="btn btn-primary" id="login">Login with a Google Account</button>
+        <button class="btn btn-outline-primary" id="login">Login with a Google Account</button>
     </div>
 
     <div class="container" id="fail" style="display: none;">
@@ -23,7 +23,7 @@
         <h1 class="display-3">Authorization Error</h1>
         <p class="lead">You are not authorized to view this page</p>
         <hr class="my-2">
-        <button class="btn btn-primary" id="logout">Logout</button>
+        <button class="btn btn-outline-primary" id="logout">Logout</button>
       </div>
     </div>
 
@@ -34,6 +34,10 @@
         <hr class="my-2">
         <p>Please contact an administrator...</p>
       </div>
+    </div>
+
+    <div class="container" id="viewport">
+
     </div>
 
    </body>
@@ -60,11 +64,13 @@
   var db = firebase.firestore()
 
   var login = document.getElementById('login')
-  var logout = document.getElementById('logout')
+  var logout = document.querySelectorAll('#logout')
+
   var logged_in = document.getElementById('logged_in')
   var logged_out = document.getElementById('logged_out')
   var fail = document.getElementById('fail')
   var errorCard = document.getElementById('error')
+  var viewport = document.getElementById('viewport')
 
   login.addEventListener('click', () => {
     firebase.auth().signInWithRedirect(provider).then(function(result) {
@@ -98,18 +104,32 @@
     })
   })
 
-      var people = [];
 
-      db.collection('Q1').get().then((doc) => {
+
+      db.collection('Q1').get().then(doc => {
         doc.forEach(doc => {
-          people.push(doc.data().name)
-        });
+          var card = document.createElement('div')
+          card.setAttribute("id", doc.data().name)
+          card.setAttribute("class", "card")
+          
+          var card_body = document.createElement('div')
+          card_body.setAttribute("class", "card-body")
+          card_body.textContent = doc.data().name
+          card.appendChild(card_body)
+          viewport.appendChild(card)
 
-        people.forEach(person => {
-          console.log(person);
-          db.collection('Q1').doc(person).collection('meetings').
-        })
+        });
       })
+      
+
+      // people.forEach(person => {
+      //     db.collection('Q1').doc(person).collection('meetings').get().then(meetings => {
+      //       meetings.forEach(doc => {
+      //         doc.data().meeting
+      //       });
+            
+      //     })
+      //   })
 
       firebase.auth().onAuthStateChanged(user => {
         if(user) {
