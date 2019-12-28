@@ -23,7 +23,7 @@
         <h1 class="display-3">Authorization Error</h1>
         <p class="lead">You are not authorized to view this page</p>
         <hr class="my-2">
-        <button class="btn btn-outline-primary" id="logout">Logout</button>
+        <button class="btn btn-outline-primary" id="logout2">Logout</button>
       </div>
     </div>
 
@@ -36,9 +36,11 @@
       </div>
     </div>
 
+  <div id="accordian">
     <div class="container" id="viewport">
 
     </div>
+  </div>
 
    </body>
 </html>
@@ -50,6 +52,11 @@
 <script src="/__/firebase/7.5.2/firebase-firestore.js"></script>
 <!-- initialize the SDK after all desired features are loaded -->
 <script src="/__/firebase/init.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
+<script>$(document).ready(function() { $('body').bootstrapMaterialDesign(); });</script>
 
 <script>
 
@@ -64,8 +71,8 @@
   var db = firebase.firestore()
 
   var login = document.getElementById('login')
-  var logout = document.querySelectorAll('#logout')
-
+  var logout = document.getElementById('logout')
+  var logout = document.getElementById('logout2')
   var logged_in = document.getElementById('logged_in')
   var logged_out = document.getElementById('logged_out')
   var fail = document.getElementById('fail')
@@ -96,6 +103,7 @@
     firebase.auth().signOut().then(function() {
       logged_out.style.display = 'block'
       logged_in.style.display = 'none'  
+      fail.style.display = 'none'  
     }).catch(function(error) {
       logged_out.style.display = 'none'
       logged_in.style.display = 'none'  
@@ -104,23 +112,121 @@
     })
   })
 
+  logout2.addEventListener('click', () => {
+    firebase.auth().signOut().then(function() {
+      logged_out.style.display = 'block'
+      logged_in.style.display = 'none'  
+      fail.style.display = 'none'  
+    }).catch(function(error) {
+      logged_out.style.display = 'none'
+      logged_in.style.display = 'none'  
+      fail.style.display = 'none'  
+      errorCard.style.display = 'block'  
+    })
+  })
 
+  db.collection('Q1').get().then(doc => {
+    doc.forEach(doc => {
+      buildName(doc.data().name)
+    })
+  }).catch(error => {
+    logged_out.style.display = 'none'
+    logged_in.style.display = 'none'  
+    fail.style.display = 'block'  
+    errorCard.style.display = 'none'
+    console.log(error);
+    
+  })
 
-      db.collection('Q1').get().then(doc => {
-        doc.forEach(doc => {
-          var card = document.createElement('div')
-          card.setAttribute("id", doc.data().name)
-          card.setAttribute("class", "card")
-          
-          var card_body = document.createElement('div')
-          card_body.setAttribute("class", "card-body")
-          card_body.textContent = doc.data().name
-          card.appendChild(card_body)
-          viewport.appendChild(card)
+  async function buildName(name) {
 
-        });
-      })
-      
+    var doc = await db.collection('Q1').doc(name).collection('meetings').get()
+    var meetingCounter = 0;
+    var meetings = [];
+    doc.forEach(doc => {
+      meetings.push(doc.data())
+      if (doc.data().status == 'Present') {
+        meetingCounter++
+      }
+    })
+
+    var table = buildTable(meetings)
+
+    var card = document.createElement('div')
+    card.setAttribute("class", "card")
+
+    var card_heading = document.createElement('div')
+    card_heading.setAttribute("id", `heading${name}`)
+    card_heading.setAttribute("class", "card-header")
+
+    var button = document.createElement('button')
+    button.setAttribute('type', 'button')
+    button.setAttribute('class', 'btn btn-link')
+    button.setAttribute('data-toggle', 'collapse')
+    button.setAttribute('data-target', `#collapse${name}`)
+    button.setAttribute('aria-expanded', 'true')
+    button.setAttribute('aria-controls', `#collapse${name}`)
+    button.textContent = name
+
+    card_heading.appendChild(button)
+
+    card.appendChild(card_heading)
+
+    var collapse = document.createElement('div')
+    collapse.setAttribute("id", `collapse${name}`)
+    collapse.setAttribute("class", "collapse")
+    collapse.setAttribute("aria-labelledby", `heading${name}`)
+    collapse.setAttribute('data-parent', '#accordian')
+
+    var card_body = document.createElement('div')
+    card_body.setAttribute("class", "card-body")
+  
+    card_body.appendChild(table)
+
+    var span = document.createElement('span')
+    span.setAttribute('class', 'badge badge-light')
+    span.textContent = meetingCounter
+    card_heading.appendChild(span)
+
+    collapse.appendChild(card_body)
+
+    card.appendChild(collapse)
+
+    viewport.appendChild(card)
+  }
+
+  function buildTable(data) {
+      var table = document.createElement("table");
+      table.className="table table-striped";
+      var thead = document.createElement("thead");
+      var tbody = document.createElement("tbody");
+      var headRow = document.createElement("tr");
+      ["Meeting Date","Status"].forEach(function(el) {
+        var th=document.createElement("th");
+        th.appendChild(document.createTextNode(el));
+        headRow.appendChild(th);
+      });
+      thead.appendChild(headRow);
+      table.appendChild(thead); 
+      data.forEach(function(el) {
+        var tr = document.createElement("tr");
+        if (el.status == 'Present') {
+          tr.className='table-success'
+        }
+        if (el.status == 'Late') {
+          tr.className='table-warning'
+        }
+        for (var o in el) {  
+          var td = document.createElement("td");
+          td.appendChild(document.createTextNode(el[o]))
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);  
+      });
+      table.appendChild(tbody);             
+      return table;
+  }
+  
 
       // people.forEach(person => {
       //     db.collection('Q1').doc(person).collection('meetings').get().then(meetings => {
