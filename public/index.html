@@ -177,6 +177,13 @@
             displayError()
         })
 
+        db.collection('all-quarters').doc('quarters').update({
+          collections: firebase.firestore.FieldValue.arrayUnion(quarter)
+        }).catch((error) => {
+            console.error("Error writing document: ", error)
+            displayError()
+        })
+
         } else {
           logged_out.style.display = 'block'
           logged_in.style.display = 'none'  

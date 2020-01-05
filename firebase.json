@@ -1,6 +1,11 @@
 {
   "hosting": {
     "public": "public",
+    "cleanUrls": true,
+    "rewrites": [{
+      "source": "/import",
+      "function": "app"
+    }],
     "ignore": [
       "firebase.json",
       "**/.*",
