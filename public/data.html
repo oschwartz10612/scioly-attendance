@@ -14,19 +14,14 @@
     <nav class="navbar navbar-light bg-dark mb-5">
       <a class="navbar-brand-light" href="#">
         <img src="./res/img/logo.png" width="30" height="30" class="d-inline-block align-top" alt=""></a>
-
-      </ul>
       <ul class="nav navbar-nav" style="float: right">
-      <li>      
-        <div class="container navbar-nav pull-right" id="logged_in" style="display: none;">
-          <button class="btn btn-outline-warning " id="logout">Logout</button>
-        </div>
-    </li>
-    </ul>
-
+        <li>      
+          <div class="container navbar-nav pull-right" id="logged_in" style="display: none;">
+            <button class="btn btn-outline-warning " id="logout">Logout</button>
+          </div>
+        </li>
+      </ul>
     </nav>
-    
-
 
     <div class="container" id="logged_out" style="display: none;">
       <div class="jumbotron">
@@ -55,10 +50,7 @@
       </div>
     </div>
 
-
-
-
-    <div class="container" id="main">
+    <div class="container" id="main" style="display: none;">
 
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -141,7 +133,6 @@
   var db = firebase.firestore()
 
   var totalMeetings
-
   var login = document.getElementById('login')
   var logout = document.getElementById('logout')
   var logout2 = document.getElementById('logout2')
@@ -159,89 +150,10 @@
   var filter = document.getElementById('filter')
   var filterNumber = document.getElementById('filterNumber')
   var filteredNames = document.getElementById('filterNames')
+
+  let params = new URLSearchParams(location.search)
+  var quarter = params.get('q')
   
-
-  login.addEventListener('click', () => {
-    firebase.auth().signInWithRedirect(provider).then(function(result) {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      var token = result.credential.accessToken
-      // The signed-in user info.
-      var user = result.user
-      // ...
-    }).catch(function(error) {
-      // Handle Errors here.
-      var errorCode = error.code
-      var errorMessage = error.message
-      console.log(errorMessage)
-      logged_out.style.display = 'none'
-      logged_in.style.display = 'none'  
-      fail.style.display = 'none'  
-      errorCard.style.display = 'block'  
-      
-    })
-  })
-
-  filter.addEventListener('click', () => {
-    var number = filterNumber.value
-    if (number != 0 || number != '') {
-      var allClass = document.getElementsByClassName(`nameCard`)
-      var keepClasses = []
-
-      for (let i = number; i <= totalMeetings; i++) {
-        keepClasses.push(document.getElementsByClassName(`meetings-${i}`))
-      }
-
-      var keep = []
-      var all = []
-
-      for (var i = 0, len = allClass.length; i < len; i++) {
-        all.push(allClass[i].id)
-      }
-      for (let x = 0; x < keepClasses.length; x++) {
-        const element = keepClasses[x];
-        for (var i = 0, len = element.length; i < len; i++) {
-          keep.push(element[i].id)
-        }
-      }
-
-
-      all.forEach(card => {
-        document.getElementById(card).style.display = 'block'
-      });
-
-      all.forEach(card => {
-        if (keep.includes(card)) {
-          var index = all.indexOf(card);
-          if (index > -1) {
-            all.splice(index, 1);
-          }
-        }       
-      });
-
-      all.forEach(card => {
-        document.getElementById(card).style.display = 'none'
-      })
-      
-      filteredNames.innerHTML = ''
-      filteredNames.setAttribute('class', 'mt-3')
-      var hr = document.createElement('hr')
-      filteredNames.appendChild(hr)
-      var h6 = document.createElement('h6')
-      h6.innerText = 'All Filtered Names:'
-      filteredNames.appendChild(h6)
-      keep.forEach(card => {
-        var p = document.createElement('p')
-        p.innerText = card
-        filteredNames.appendChild(p)
-      });
-      filterCard.appendChild(filteredNames)
-
-    }
-  })
-
-  logout.addEventListener('click', () => {logoutPage()})
-  logout2.addEventListener('click', () => {logoutPage()})
-
   function logoutPage() {
     firebase.auth().signOut().then(function() {
       logged_out.style.display = 'block'
@@ -255,28 +167,6 @@
       errorCard.style.display = 'block'  
     })
   }
-
-  let params = new URLSearchParams(location.search)
-  var quarter = params.get('q')
-
-  if (quarter == '' || quarter == null) {
-    
-  }
-
-  quarterDisplay.innerHTML = quarter
-
-  db.collection(quarter).get().then(doc => {
-    spinner.style.display = 'none' 
-    doc.forEach(doc => {
-      buildName(doc.data().name)
-    })
-  }).catch(error => {
-    logged_out.style.display = 'none'
-    logged_in.style.display = 'none'  
-    fail.style.display = 'block'  
-    errorCard.style.display = 'none'
-    console.log(error);
-  })
 
   async function buildName(name) {
 
@@ -374,6 +264,119 @@
       return table;
   }
 
+  firebase.auth().onAuthStateChanged(user => {
+    if(user) {
+      if (user.email == 'roboscienceolympiad@gmail.com') {
+        logged_out.style.display = 'none'
+        logged_in.style.display = 'block'
+        main.style.display = 'block'
+        onLoad()
+      } else {
+        fail.style.display = 'block';
+      }
+    } else {
+      logged_out.style.display = 'block'
+      logged_in.style.display = 'none'  
+    }
+  })
+
+  login.addEventListener('click', () => {
+    firebase.auth().signInWithRedirect(provider).then(function(result) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      var token = result.credential.accessToken
+      // The signed-in user info.
+      var user = result.user
+      // ...
+    }).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code
+      var errorMessage = error.message
+      console.log(errorMessage)
+      logged_out.style.display = 'none'
+      logged_in.style.display = 'none'  
+      fail.style.display = 'none'  
+      errorCard.style.display = 'block'  
+      
+    })
+  })
+
+  logout.addEventListener('click', () => {logoutPage()})
+  logout2.addEventListener('click', () => {logoutPage()})
+
+  function onLoad() {
+
+  filter.addEventListener('click', () => {
+    var number = filterNumber.value
+    if (number != 0 || number != '') {
+      var allClass = document.getElementsByClassName(`nameCard`)
+      var keepClasses = []
+
+      for (let i = number; i <= totalMeetings; i++) {
+        keepClasses.push(document.getElementsByClassName(`meetings-${i}`))
+      }
+
+      var keep = []
+      var all = []
+
+      for (var i = 0, len = allClass.length; i < len; i++) {
+        all.push(allClass[i].id)
+      }
+      for (let x = 0; x < keepClasses.length; x++) {
+        const element = keepClasses[x];
+        for (var i = 0, len = element.length; i < len; i++) {
+          keep.push(element[i].id)
+        }
+      }
+
+
+      all.forEach(card => {
+        document.getElementById(card).style.display = 'block'
+      });
+
+      all.forEach(card => {
+        if (keep.includes(card)) {
+          var index = all.indexOf(card);
+          if (index > -1) {
+            all.splice(index, 1);
+          }
+        }       
+      });
+
+      all.forEach(card => {
+        document.getElementById(card).style.display = 'none'
+      })
+      
+      filteredNames.innerHTML = ''
+      filteredNames.setAttribute('class', 'mt-3')
+      var hr = document.createElement('hr')
+      filteredNames.appendChild(hr)
+      var h6 = document.createElement('h6')
+      h6.innerText = 'All Filtered Names:'
+      filteredNames.appendChild(h6)
+      keep.forEach(card => {
+        var p = document.createElement('p')
+        p.innerText = card
+        filteredNames.appendChild(p)
+      });
+      filterCard.appendChild(filteredNames)
+
+    }
+  })
+
+  quarterDisplay.innerHTML = quarter
+
+  db.collection(quarter).get().then(doc => {
+    spinner.style.display = 'none' 
+    doc.forEach(doc => {
+      buildName(doc.data().name)
+    })
+  }).catch(error => {
+    logged_out.style.display = 'none'
+    logged_in.style.display = 'none'  
+    fail.style.display = 'block'  
+    errorCard.style.display = 'none'
+    console.log(error);
+  })
   db.collection(quarter).doc('all-meetings').collection('meetings').get().then(doc => {
     var counter = 0
     doc.forEach(doc => {
@@ -402,19 +405,6 @@
       window.location.replace("/dashboard");
     })
   })
-
-  firebase.auth().onAuthStateChanged(user => {
-    if(user) {
-      if (user.email == 'roboscienceolympiad@gmail.com') {
-        logged_out.style.display = 'none'
-        logged_in.style.display = 'block'
-      } else {
-        fail.style.display = 'block';
-      }
-    } else {
-      logged_out.style.display = 'block'
-      logged_in.style.display = 'none'  
-    }
-  })
+  }
 
 </script>

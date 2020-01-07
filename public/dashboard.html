@@ -100,6 +100,39 @@
   var spinner = document.getElementById('spinner')
   var main = document.getElementById('main')
 
+  function logoutPage() {
+    firebase.auth().signOut().then(function() {
+      logged_out.style.display = 'block'
+      logged_in.style.display = 'none'  
+      fail.style.display = 'none'  
+      main.style.display = 'none'  
+    }).catch(function(error) {
+      logged_out.style.display = 'none'
+      logged_in.style.display = 'none'  
+      fail.style.display = 'none'  
+      errorCard.style.display = 'block'  
+    })
+  }
+
+    function goToQuarter(id){
+        window.location.replace(`/data?q=${id}`);    
+    }
+
+  firebase.auth().onAuthStateChanged(user => {
+    if(user) {
+      if (user.email == 'roboscienceolympiad@gmail.com') {
+        logged_out.style.display = 'none'
+        logged_in.style.display = 'block'
+        onLoad()
+      } else {
+        fail.style.display = 'block';
+      }
+    } else {
+      logged_out.style.display = 'block'
+      logged_in.style.display = 'none'  
+      spinner.style.display = 'none'
+    }
+  })
 
   login.addEventListener('click', () => {
     firebase.auth().signInWithRedirect(provider).then(function(result) {
@@ -123,22 +156,11 @@
 
   logout.addEventListener('click', () => {logoutPage()})
   logout2.addEventListener('click', () => {logoutPage()})
+  
 
-  function logoutPage() {
-    firebase.auth().signOut().then(function() {
-      logged_out.style.display = 'block'
-      logged_in.style.display = 'none'  
-      fail.style.display = 'none'  
-      main.style.display = 'none'  
-    }).catch(function(error) {
-      logged_out.style.display = 'none'
-      logged_in.style.display = 'none'  
-      fail.style.display = 'none'  
-      errorCard.style.display = 'block'  
-    })
-  }
-
-    db.collection('all-quarters').doc('quarters').get().then(doc => {
+  function onLoad() {
+  
+  db.collection('all-quarters').doc('quarters').get().then(doc => {
         var quarters = doc.data().collections
         var counter = 0;
         var row = document.createElement('div')
@@ -180,22 +202,6 @@
         console.log(error);
     })
 
-    function goToQuarter(id){
-        window.location.replace(`/data?q=${id}`);    
-    }
-
-  firebase.auth().onAuthStateChanged(user => {
-    if(user) {
-      if (user.email == 'roboscienceolympiad@gmail.com') {
-        logged_out.style.display = 'none'
-        logged_in.style.display = 'block'
-      } else {
-        fail.style.display = 'block';
-      }
-    } else {
-      logged_out.style.display = 'block'
-      logged_in.style.display = 'none'  
-    }
-  })
+  }
 
 </script>
