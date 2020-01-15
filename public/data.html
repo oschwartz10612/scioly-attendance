@@ -88,6 +88,31 @@
             </div>
           </div>
 
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title">Add a record</h5>
+              <form action="./import" method="GET" id="manualAdd">
+                <input type="hidden" name="q" id="manualQuarterInput">
+                <div class="form-group">
+                  <label for="nameInput" class="bmd-label-floating">Name</label>
+                  <input name="n" class="form-control" id="nameInput">
+                </div>
+                <div class="form-group">
+                  <label for="meetingInputManual" class="bmd-label-floating">Meeting Date: mm-dd-yyyy</label>
+                  <input name="m" class="form-control" id="meetingInputManual">
+                </div>
+                <div class="form-group">
+                  <label for="statusInput" class="bmd-label-floating">Status</label>
+                  <select class="form-control" id="statusInput">
+                    <option>Present</option>
+                    <option>Late</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-raised">Submit</button>
+              </form>
+            </div>
+          </div>
+
           <div class="card">
             <div class="card-body" id="settings">
               <h5 class="card-title">Settings</h5>
@@ -161,9 +186,12 @@
   var filteredNames = document.getElementById('filterNames')
   var emailInput = document.getElementById('emailInput')
   var passwordInput = document.getElementById('passwordInput')
+  var manualQuarterInput = document.getElementById('manualQuarterInput')
+  
 
   let params = new URLSearchParams(location.search)
   var quarter = params.get('q')
+
   
   function logoutPage() {
     firebase.auth().signOut().then(function() {
@@ -281,6 +309,7 @@
         logged_out.style.display = 'none'
         logged_in.style.display = 'block'
         main.style.display = 'block'
+        manualQuarterInput.setAttribute('value', quarter)
         onLoad()
       } else {
         fail.style.display = 'block';

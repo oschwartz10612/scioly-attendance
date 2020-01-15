@@ -39,7 +39,7 @@ app.get('/import',(req,res) => {
         console.error("Error writing document: ", error)
     })
 
-    res.send('success!')
+    res.redirect('back')
 })
 
 exports.app = functions.https.onRequest(app)
