@@ -28,8 +28,17 @@
       <div class="jumbotron">
         <h1 class="display-3">Please Login</h1>
         <hr class="my-2">
-        <p>Please log in with the roboscienceolympiad Google account to continue...</p>
-        <button class="btn btn-outline-primary" id="login">Login with Google</button>
+        <p>Please log in with the roboscienceolympiad account to continue...</p>
+        <div class="form-group">
+          <label for="emailInput" class="bmd-label-floating">Email address</label>
+          <input type="email" class="form-control" id="emailInput">
+          <span class="bmd-help">We'll never share your email with anyone else.</span>
+        </div>
+        <div class="form-group">
+          <label for="passwordInput" class="bmd-label-floating">Password</label>
+          <input type="password" class="form-control" id="passwordInput">
+        </div>
+        <button class="btn btn-outline-primary" id="login">Login</button>
       </div>
     </div>
 
@@ -99,6 +108,9 @@
   var errorCard = document.getElementById('error')
   var spinner = document.getElementById('spinner')
   var main = document.getElementById('main')
+  var emailInput = document.getElementById('emailInput')
+  var passwordInput = document.getElementById('passwordInput')
+
 
   function logoutPage() {
     firebase.auth().signOut().then(function() {
@@ -120,7 +132,7 @@
 
   firebase.auth().onAuthStateChanged(user => {
     if(user) {
-      if (user.email == 'roboscienceolympiad@gmail.com') {
+      if (user.email == 'leadership@roboscienceolympiad.org') {
         logged_out.style.display = 'none'
         logged_in.style.display = 'block'
         onLoad()
@@ -135,24 +147,31 @@
   })
 
   login.addEventListener('click', () => {
-    firebase.auth().signInWithRedirect(provider).then(function(result) {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      var token = result.credential.accessToken
-      // The signed-in user info.
-      var user = result.user
-      // ...
-    }).catch(function(error) {
-      // Handle Errors here.
-      var errorCode = error.code
-      var errorMessage = error.message
-      console.log(errorMessage)
-      logged_out.style.display = 'none'
-      logged_in.style.display = 'none'  
-      fail.style.display = 'none'  
-      errorCard.style.display = 'block'  
-      
-    })
+    loginUser()
   })
+
+  passwordInput.addEventListener('keyup',function(e){
+    if (e.keyCode === 13) {
+      loginUser()
+    }
+  })
+
+  function loginUser() {
+    if (emailInput.value != null && passwordInput.value != null && emailInput.value != '' && passwordInput.value != '') {
+        firebase.auth().signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function(error) {
+          var errorCode = error.code
+          var errorMessage = error.message
+          console.log(errorMessage)
+          logged_out.style.display = 'block'
+          logged_in.style.display = 'none'  
+          fail.style.display = 'none'  
+          errorCard.style.display = 'none' 
+          alert('That email or password was incorrect')
+      });
+    } else {
+      alert('Please enter an email and password')
+    }
+  }
 
   logout.addEventListener('click', () => {logoutPage()})
   logout2.addEventListener('click', () => {logoutPage()})
