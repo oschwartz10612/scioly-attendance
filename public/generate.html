@@ -178,11 +178,11 @@
     if (startTime.value != null && endTime.value != null && quarter.value != null && lateTime.value != null && startTime.value != '' && endTime.value != '' && quarter.value != '' && lateTime.value != '') {
       qrcode.clear();
       if (meeting.value == null || meeting.value == '') {
-        qrcode.makeCode(`${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}`);
-        console.log(`${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}`);
+        qrcode.makeCode(`https://${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}`);
+        console.log(`https://${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}`);
       } else {
-        qrcode.makeCode(`${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}&m=${meeting.value}`);
-        console.log(`${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}&m=${meeting.value}`);
+        qrcode.makeCode(`https://${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}&m=${meeting.value}`);
+        console.log(`https://${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}&m=${meeting.value}`);
       }
     } else {
       alert('You have not completed all fields!')
