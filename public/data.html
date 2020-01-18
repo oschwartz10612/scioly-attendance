@@ -146,6 +146,7 @@
 <!-- include only the Firebase features as you need -->
 <script src="/__/firebase/7.5.2/firebase-auth.js"></script>
 <script src="/__/firebase/7.5.2/firebase-firestore.js"></script>
+<script src="/__/firebase/7.5.2/firebase-functions.js"></script>
 <!-- initialize the SDK after all desired features are loaded -->
 <script src="/__/firebase/init.js"></script>
 
@@ -443,15 +444,28 @@
   })
 
   deleteQuarter.addEventListener('click', () => {
-    db.collection('all-quarters').doc('quarters').update({
-      collections: firebase.firestore.FieldValue.arrayRemove(quarter)
-    }).catch((error) => {
-        console.error("Error writing document: ", error)
-        displayError()
-    }).then(()=> {
-      window.location.replace("/dashboard");
-    })
-  })
+      var r = confirm("Are you sure?")
+      if (r == true) {
+        deleteAtPath(quarter)
+      }
+    }) 
   }
+
+  async function deleteAtPath(quarterPath) {
+    var deleteFn = firebase.functions().httpsCallable('recursiveDelete');
+    await deleteFn({ path: `/${quarterPath}` })
+        .catch(function(err) {
+          displayError()
+          console.warn(err);
+        });
+    await db.collection('all-quarters').doc('quarters').update({
+          collections: firebase.firestore.FieldValue.arrayRemove(quarterPath)
+        }).catch((error) => {
+            console.error("Error writing document: ", error)
+            displayError()
+        })
+        window.location.replace("/dashboard");
+  }
+
 
 </script>
