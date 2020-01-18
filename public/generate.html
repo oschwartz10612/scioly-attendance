@@ -6,27 +6,39 @@
     <title>Science Olympiad Attendance Data</title>
     <link rel="shortcut icon" href="./res/img/favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="./res/css/bootstrap-material-design.min.css">
-    <link rel="stylesheet" href="./res/css/data.css">
   </head>
   <body>
 
     <!-- Image and text -->
     <nav class="navbar navbar-light bg-dark mb-5">
-      <a class="navbar-brand-light" href="#">
-        <img src="./res/img/logo.png" width="30" height="30" class="d-inline-block align-top" alt=""></a>
-      <div class="container" id="logged_in" style="display: none;">
-        <button class="btn btn-outline-warning" id="logout">Logout</button>
-      </div>
-    </nav>
-    
+        <a class="navbar-brand-light" href="/dashboard">
+          <img src="./res/img/logo.png" width="30" height="30" class="d-inline-block align-top" alt=""></a>
+        <ul class="nav navbar-nav" style="float: right">
+          <li>      
+            <div class="container navbar-nav pull-right" id="logged_in" style="display: none;">
+              <a href="/dashboard" class="btn btn-raised btn-secondary">Dashboard</a>
+              <button class="btn btn-raised btn-warning " id="logout">Logout</button>
+            </div>
+          </li>
+        </ul>
+      </nav>
 
 
     <div class="container" id="logged_out" style="display: none;">
       <div class="jumbotron">
         <h1 class="display-3">Please Login</h1>
         <hr class="my-2">
-        <p>Please log in with the roboscienceolympiad Google account to continue...</p>
-        <button class="btn btn-outline-primary" id="login">Login with Google</button>
+        <p>Please log in with the roboscienceolympiad account to continue...</p>
+        <div class="form-group">
+          <label for="emailInput" class="bmd-label-floating">Email address</label>
+          <input type="email" class="form-control" id="emailInput">
+          <span class="bmd-help">We'll never share your email with anyone else.</span>
+        </div>
+        <div class="form-group">
+          <label for="passwordInput" class="bmd-label-floating">Password</label>
+          <input type="password" class="form-control" id="passwordInput">
+        </div>
+        <button class="btn btn-raised btn-dark" id="login">Login</button>
       </div>
     </div>
 
@@ -35,7 +47,7 @@
         <h1 class="display-3">Authorization Error</h1>
         <p class="lead">You are not authorized to view this page</p>
         <hr class="my-2">
-        <button class="btn btn-outline-primary" id="logout2">Logout</button>
+        <button class="btn btn-raised btn-dark" id="logout2">Logout</button>
       </div>
     </div>
 
@@ -56,16 +68,54 @@
         <div class="spinner-border" role="status" id="spinner">
             <span class="sr-only">Loading...</span>
         </div>
-     
-      <div class="row">
 
-      </div>
-    </div>
+        <div class="row">
 
-    <div class="container">
-      <div class="row" id="pickQuarter">
+          <div class="col-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Options</h5>
+                <div class="form-group">
+                  <label for="quarter" class="bmd-label-floating">Quarter Name</label>
+                  <input type="text" class="form-control" id="quarter">
+                  <span class="bmd-help">This will serve as the collection of meetings. Appears in the dashboard.</span>
+                </div>
+                <div class="form-group">
+                  <label for="startTime" class="bmd-label-floating">Start Time in Military Hours</label>
+                  <input type="text" class="form-control" id="startTime">
+                  <span class="bmd-help">When will the meeting start? QR code only scannable after this time. Use military hours. Ex: 14 is 2:00PM.</span>
+                </div>
+                <div class="form-group">
+                  <label for="endTime" class="bmd-label-floating">End Time in Miltary Hours</label>
+                  <input type="text" class="form-control" id="endTime">
+                  <span class="bmd-help">When will the meeting end? QR code not scannable after this time. Use military hours. Ex: 16 is 4:00PM.</span>
+                </div>
+                <div class="form-group">
+                  <label for="lateTime" class="bmd-label-floating">Late Time in Minutes</label>
+                  <input type="text" class="form-control" id="lateTime">
+                  <span class="bmd-help">One hour after the start time plus the entered data in minutes, the scanner will be marked late.</span>
+                </div>
+                <div class="form-group">
+                  <label for="meeting" class="bmd-label-floating">(Optional) Meeting Name</label>
+                  <input type="text" class="form-control" id="meeting">
+                  <span class="bmd-help">If set will put all scans into a custom meeting title. If left blank scanning will enter the current date.</span>
+                </div>
+                <button class="btn btn-raised btn-dark mt-4" onclick="generate()">Generate</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-8">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">QR Code</h5>
+                <div id="qrcode"></div>
+              </div>
+            </div>
+          </div>
 
-      </div>
+        </div>
+    
     </div>
 
    </body>
@@ -83,6 +133,8 @@
 <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
 <script>$(document).ready(function() { $('body').bootstrapMaterialDesign(); });</script>
+
+<script src="./res/js/qrcode.min.js"></script>
 
 <script>
 
@@ -105,30 +157,37 @@
   var errorCard = document.getElementById('error')
   var spinner = document.getElementById('spinner')
   var main = document.getElementById('main')
+  var emailInput = document.getElementById('emailInput')
+  var quarter = document.getElementById('quarter')
+  var meeting = document.getElementById('meeting')
+  var startTime = document.getElementById('startTime')
+  var endTime = document.getElementById('endTime')
+  var lateTime = document.getElementById('lateTime')
+  var qrcodeDiv = document.getElementById('qrcode')
 
+  var qrcode = new QRCode(qrcodeDiv, {
+        text: "Nothing to see here...",
+        width: 488,
+        height: 488,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+  });
 
-  login.addEventListener('click', () => {
-    firebase.auth().signInWithRedirect(provider).then(function(result) {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      var token = result.credential.accessToken
-      // The signed-in user info.
-      var user = result.user
-      // ...
-    }).catch(function(error) {
-      // Handle Errors here.
-      var errorCode = error.code
-      var errorMessage = error.message
-      console.log(errorMessage)
-      logged_out.style.display = 'none'
-      logged_in.style.display = 'none'  
-      fail.style.display = 'none'  
-      errorCard.style.display = 'block'  
-      
-    })
-  })
-
-  logout.addEventListener('click', () => {logoutPage()})
-  logout2.addEventListener('click', () => {logoutPage()})
+  function generate() {
+    if (startTime.value != null && endTime.value != null && quarter.value != null && lateTime.value != null && startTime.value != '' && endTime.value != '' && quarter.value != '' && lateTime.value != '') {
+      qrcode.clear();
+      if (meeting.value == null || meeting.value == '') {
+        qrcode.makeCode(`${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}`);
+        console.log(`${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}`);
+      } else {
+        qrcode.makeCode(`${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}&m=${meeting.value}`);
+        console.log(`${window.location.hostname}/?q=${quarter.value}&o=${startTime.value}&c=${endTime.value}&l=${lateTime.value}&m=${meeting.value}`);
+      }
+    } else {
+      alert('You have not completed all fields!')
+    }
+  }
 
   function logoutPage() {
     firebase.auth().signOut().then(function() {
@@ -144,39 +203,63 @@
     })
   }
 
-    db.collection('all-quarters').doc('quarters').get().then(doc => {
-        var quarters = doc.data().collections
-        var counter = 0;
-        var row = document.createElement('div')
-        row.setAttribute("class", "row mb-5")
-        quarters.forEach(collection => {
-            var col = document.createElement('div')
-            col.setAttribute("class", "col-3")
+    function goToQuarter(id){
+        window.location.replace(`/data?q=${id}`);    
+    }
 
-            var card = document.createElement('div')
-            card.setAttribute("class", "card")
-            card.setAttribute("id", collection)
+  firebase.auth().onAuthStateChanged(user => {
+    if(user) {
+      if (user.email == 'leadership@roboscienceolympiad.org') {
+        logged_out.style.display = 'none'
+        logged_in.style.display = 'block'
+        onLoad()
+      } else {
+        fail.style.display = 'block';
+      }
+    } else {
+      logged_out.style.display = 'block'
+      logged_in.style.display = 'none'  
+      spinner.style.display = 'none'
+    }
+  })
 
-            // var card_heading = document.createElement('div')
-            // card_heading.setAttribute("id", collection)
-            // card_heading.setAttribute("class", "card-header")
-            // card_heading.innerText = collection
+  login.addEventListener('click', () => {
+    loginUser()
+  })
 
-            var button = document.createElement('button')
-            button.setAttribute('type', 'button')
-            button.setAttribute('class', 'btn btn-primary')
-            button.setAttribute('id', collection)
-            button.setAttribute('onClick', 'goToQuarter(this.id)')
-            button.innerText = collection
+  passwordInput.addEventListener('keyup',function(e){
+    if (e.keyCode === 13) {
+      loginUser()
+    }
+  })
 
-            //card.appendChild(card_heading)
-            card.appendChild(button)
-            col.appendChild(card)
-            row.appendChild(col)
-            counter++;
+  function loginUser() {
+    if (emailInput.value != null && passwordInput.value != null && emailInput.value != '' && passwordInput.value != '') {
+        firebase.auth().signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch(function(error) {
+          var errorCode = error.code
+          var errorMessage = error.message
+          console.log(errorMessage)
+          logged_out.style.display = 'block'
+          logged_in.style.display = 'none'  
+          fail.style.display = 'none'  
+          errorCard.style.display = 'none' 
+          alert('That email or password was incorrect')
+      });
+    } else {
+      alert('Please enter an email and password')
+    }
+  }
 
-        });
-        main.appendChild(row)
+  logout.addEventListener('click', () => {logoutPage()})
+  logout2.addEventListener('click', () => {logoutPage()})
+  
+
+  function onLoad() {
+  
+  db.collection('all-quarters').doc('quarters').get().then(doc => {
+
+
+
         spinner.style.display = 'none'
     }).catch(error => {
         logged_out.style.display = 'none'
@@ -186,22 +269,6 @@
         console.log(error);
     })
 
-    function goToQuarter(id){
-        window.location.replace(`/data?q=${id}`);    
-    }
-
-  firebase.auth().onAuthStateChanged(user => {
-    if(user) {
-      if (user.email == 'roboscienceolympiad@gmail.com') {
-        logged_out.style.display = 'none'
-        logged_in.style.display = 'block'
-      } else {
-        fail.style.display = 'block';
-      }
-    } else {
-      logged_out.style.display = 'block'
-      logged_in.style.display = 'none'  
-    }
-  })
+  }
 
 </script>

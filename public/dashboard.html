@@ -6,23 +6,24 @@
     <title>Science Olympiad Attendance Data</title>
     <link rel="shortcut icon" href="./res/img/favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="./res/css/bootstrap-material-design.min.css">
-    <link rel="stylesheet" href="./res/css/data.css">
+    <link rel="stylesheet" href="./res/css/dashboard.css">
   </head>
   <body>
 
     <!-- Image and text -->
     <nav class="navbar navbar-light bg-dark mb-5">
         <a class="navbar-brand-light" href="#">
-          <img src="./res/img/logo.png" width="30" height="30" class="d-inline-block align-top" alt=""></a>
+          <img src="./res/img/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        </a>
         <ul class="nav navbar-nav" style="float: right">
           <li>      
             <div class="container navbar-nav pull-right" id="logged_in" style="display: none;">
-              <button class="btn btn-outline-warning " id="logout">Logout</button>
+              <a href="/generate" class="btn btn-raised btn-primary">Generate New Code</a>
+              <button class="btn btn-raised btn-warning " id="logout">Logout</button>
             </div>
           </li>
         </ul>
       </nav>
-
 
     <div class="container" id="logged_out" style="display: none;">
       <div class="jumbotron">
@@ -38,7 +39,7 @@
           <label for="passwordInput" class="bmd-label-floating">Password</label>
           <input type="password" class="form-control" id="passwordInput">
         </div>
-        <button class="btn btn-outline-primary" id="login">Login</button>
+        <button class="btn btn-raised btn-primary" id="login">Login</button>
       </div>
     </div>
 
@@ -47,7 +48,7 @@
         <h1 class="display-3">Authorization Error</h1>
         <p class="lead">You are not authorized to view this page</p>
         <hr class="my-2">
-        <button class="btn btn-outline-primary" id="logout2">Logout</button>
+        <button class="btn btn-raised btn-primary" id="logout2">Logout</button>
       </div>
     </div>
 
@@ -181,37 +182,51 @@
   
   db.collection('all-quarters').doc('quarters').get().then(doc => {
         var quarters = doc.data().collections
-        var counter = 0;
+        var counter = 0
+        var collate = document.createElement('div')
         var row = document.createElement('div')
         row.setAttribute("class", "row mb-5")
         quarters.forEach(collection => {
-            var col = document.createElement('div')
-            col.setAttribute("class", "col-3")
+          counter++
 
-            var card = document.createElement('div')
-            card.setAttribute("class", "card")
-            card.setAttribute("id", collection)
+          if (counter == 4) {
+            collate.appendChild(row)
+            row = document.createElement('div')
+            row.setAttribute("class", "row mb-5")
+            counter = 0
+          }
 
-            // var card_heading = document.createElement('div')
-            // card_heading.setAttribute("id", collection)
-            // card_heading.setAttribute("class", "card-header")
-            // card_heading.innerText = collection
+          var col = document.createElement('div')
+          col.setAttribute("class", "col")
 
-            var button = document.createElement('button')
-            button.setAttribute('type', 'button')
-            button.setAttribute('class', 'btn btn-primary')
-            button.setAttribute('id', collection)
-            button.setAttribute('onClick', 'goToQuarter(this.id)')
-            button.innerText = collection
+          var card = document.createElement('div')
+          card.setAttribute("class", "card")
 
-            //card.appendChild(card_heading)
-            card.appendChild(button)
-            col.appendChild(card)
-            row.appendChild(col)
-            counter++;
+          var card_body = document.createElement('div')
+          card_body.setAttribute("class", "card-body")
+          card_body.setAttribute("id", collection)
+
+          var card_heading = document.createElement('h1')
+          card_heading.setAttribute("id", collection)
+          card_heading.setAttribute("class", "card-title mb-5 text-nowrap")
+          card_heading.innerText = collection
+          card_body.appendChild(card_heading)
+
+          var button = document.createElement('button')
+          button.setAttribute('type', 'button')
+          button.setAttribute('class', 'btn btn-raised btn-dark mt-5')
+          button.setAttribute('id', collection)
+          button.setAttribute('onClick', 'goToQuarter(this.id)')
+          button.innerText = 'Lets Go!'
+
+          card_body.appendChild(button)
+          card.appendChild(card_body)
+          col.appendChild(card)
+          row.appendChild(col)
 
         });
-        main.appendChild(row)
+        collate.appendChild(row)
+        main.appendChild(collate)
         spinner.style.display = 'none'
     }).catch(error => {
         logged_out.style.display = 'none'
