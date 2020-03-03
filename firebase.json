@@ -2,10 +2,11 @@
   "hosting": {
     "public": "public",
     "cleanUrls": true,
-    "rewrites": [{
-      "source": "/import",
-      "function": "app"
-    }],
+    "appAssociation": "AUTO",
+    "rewrites": [
+      { "source": "/import", "function": "app"} ,
+      { "source": "/links/**", "dynamicLinks": true }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",

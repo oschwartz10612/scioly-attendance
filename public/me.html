@@ -15,6 +15,7 @@
     
   </head>
   <body>
+
     <div class="container mt-4 mb-4">
       
       <div class="card" id="logged_out" style="display: none;">
@@ -32,8 +33,9 @@
           <h1>My Attendance</h1>
           <hr>
           <h3>You have attended <span id="meetingsCounterDisplay"></span> meetings.</h3>
-          <p>Below are your meetings for Third Quarter. If you believe there was an issue, please contact us immediately.</p>
+          <p>Below are your meetings for <span id="quarterName"></span>. If you believe there was an issue, please contact us immediately.</p>
           <div id="main"></div>
+          <a href="me" class="btn btn-dark mt-2 mr-3">Return to Dashboard</a>
           <button id="logout" class="btn btn-warning mt-2">Logout</button>
         </div>
       </div>
@@ -57,6 +59,8 @@
       </div>
     </div>
 
+    <div class="container" id="dashboard"></div>
+
    </body>
 </html>
 
@@ -68,145 +72,4 @@
 <!-- initialize the SDK after all desired features are loaded -->
 <script src="/__/firebase/init.js"></script>
 
-<script>
-
-  try {
-    let app = firebase.app()
-    let features = ['auth', 'firestore'].filter(feature => typeof app[feature] === 'function')
-  } catch (e) {
-    console.error(e)
-  }
-
-  var provider = new firebase.auth.GoogleAuthProvider()
-  var db = firebase.firestore()
-
-  var login = document.getElementById('login')
-  var logout = document.getElementById('logout')
-  var logout2 = document.getElementById('logout2')
-  var logged_in = document.getElementById('logged_in')
-  var logged_out = document.getElementById('logged_out')
-  var fail = document.getElementById('fail')
-  var errorCard = document.getElementById('error')
-  var main = document.getElementById('main')
-  var meetingsCounterDisplay = document.getElementById('meetingsCounterDisplay')
-
-  login.addEventListener('click', () => {
-    firebase.auth().signInWithRedirect(provider).then(function(result) {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      var token = result.credential.accessToken
-      // The signed-in user info.
-      var user = result.user
-      // ...
-    }).catch(function(error) {
-      // Handle Errors here.
-      var errorCode = error.code
-      var errorMessage = error.message
-      console.log(errorMessage)
-      logged_out.style.display = 'none'
-      logged_in.style.display = 'none'  
-      fail.style.display = 'none'  
-      errorCard.style.display = 'block'  
-      
-    })
-  })
-
-  logout.addEventListener('click', () => {
-    firebase.auth().signOut().then(function() {
-      logged_out.style.display = 'block'
-      logged_in.style.display = 'none'  
-    }).catch(function(error) {
-      logged_out.style.display = 'none'
-      logged_in.style.display = 'none'  
-      fail.style.display = 'none'  
-      errorCard.style.display = 'block'  
-    })
-  })
-
-  logout2.addEventListener('click', () => {
-    firebase.auth().signOut().then(function() {
-      logged_out.style.display = 'block'
-      logged_in.style.display = 'none' 
-      fail.style.display = 'none'  
-      errorCard.style.display = 'none' 
-    }).catch(function(error) {
-      logged_out.style.display = 'none'
-      logged_in.style.display = 'none'  
-      fail.style.display = 'none'  
-      errorCard.style.display = 'block'  
-    })
-  })
-
-
-
-  firebase.auth().onAuthStateChanged(user => {
-    if(user) {
-      logged_out.style.display = 'none'
-      logged_in.style.display = 'block'
-      buildName(user.displayName, 'Q3')
-    } else {
-      logged_out.style.display = 'block'
-      logged_in.style.display = 'none'  
-    }
-  })
-
-  async function buildName(name, quarter) {
-    var doc = await db.collection(quarter).doc(name).collection('meetings').get().catch(error => {
-      logged_out.style.display = 'none'
-      logged_in.style.display = 'none'  
-      fail.style.display = 'none'  
-      errorCard.style.display = 'block'
-      console.log(error);
-    })
-    var meetingCounter = 0;
-    var meetings = [];
-    doc.forEach(doc => {
-      meetings.push(doc.data())
-      if (doc.data().status == 'Present') {
-        meetingCounter++
-      }
-    })
-    meetingsCounterDisplay.innerText = meetingCounter
-    var table = buildTable(meetings)
-    main.appendChild(table)
-  }
-
-  function displayError() {
-    logged_out.style.display = 'none'
-    logged_in.style.display = 'none'  
-    fail.style.display = 'none'  
-    errorCard.style.display = 'block' 
-  }
-
-  function buildTable(data) {
-      var table = document.createElement("table");
-      table.className="table table-striped";
-      var thead = document.createElement("thead");
-      var tbody = document.createElement("tbody");
-      var headRow = document.createElement("tr");
-      ["Meeting Date","Status"].forEach(function(el) {
-        var th=document.createElement("th");
-        th.appendChild(document.createTextNode(el));
-        headRow.appendChild(th);
-      });
-      thead.appendChild(headRow);
-      table.appendChild(thead); 
-      data.forEach(function(el) {
-        var tr = document.createElement("tr");
-        if (el.status == 'Present') {
-          tr.className='table-success'
-        }
-        if (el.status == 'Late') {
-          tr.className='table-warning'
-        }
-        for (var o in el) {  
-          var td = document.createElement("td");
-          td.appendChild(document.createTextNode(el[o]))
-          tr.appendChild(td);
-        }
-        tbody.appendChild(tr);  
-      });
-      table.appendChild(tbody);             
-      return table;
-  }
-
-</script>
+<script src="./res/js/me.js"></script>
