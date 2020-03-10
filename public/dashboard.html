@@ -19,7 +19,7 @@
           <li>      
             <div class="container navbar-nav pull-right" id="logged_in" style="display: none;">
               <a href="/generate" class="btn btn-raised btn-primary">Generate New Code</a>
-              <button class="btn btn-raised btn-warning " id="logout">Logout</button>
+              <button class="btn btn-raised btn-warning" id="logout">Logout</button>
             </div>
           </li>
         </ul>
@@ -111,7 +111,6 @@
   var main = document.getElementById('main')
   var emailInput = document.getElementById('emailInput')
   var passwordInput = document.getElementById('passwordInput')
-
 
   function logoutPage() {
     firebase.auth().signOut().then(function() {

@@ -1,4 +1,4 @@
-try {
+  try {
     let app = firebase.app()
     let features = ['auth', 'firestore'].filter(feature => typeof app[feature] === 'function')
   } catch (e) {
@@ -102,6 +102,7 @@ try {
   var minutes = today.getMinutes()
   var hours = today.getHours()
   var prevMeeting = getCookie('prevMeeting')
+  var prevStatus = getCookie('prevStatus')
 
   if (open == null || close == null || late == null || quarter == null || open == '' || close == '' || late == '' || quarter == '') {
     fail.style.display = 'block'
@@ -130,6 +131,13 @@ try {
       if (prevMeeting != meeting) {
           logoutFire();
           setCookie('prevMeeting', meeting, 30);
+      }
+
+      console.log(status);
+
+      if (prevStatus != status) {
+        logoutFire();
+        setCookie('prevStatus', status, 30);
       }
 
       firebase.auth().onAuthStateChanged(user => {
