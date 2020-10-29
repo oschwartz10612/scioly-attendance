@@ -7,12 +7,9 @@ var app = express();
 var admin = require("firebase-admin");
 const firebase_tools = require('firebase-tools');
 
-var serviceAccount = require("./serviceAccountKey.json");
+//var serviceAccount = require("./serviceAccountKey.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://qr-attendance-ac87d.firebaseio.com"
-});
+admin.initializeApp();
 
 app.get('/import',(req,res) => {
     var meeting = req.query.m

@@ -65,3 +65,5 @@ node_modules/
 .env
 
 functions/serviceAccountKey.json
+
+.DS_Store
